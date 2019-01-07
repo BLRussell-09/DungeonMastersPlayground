@@ -20,15 +20,14 @@ namespace DungeonMastersPlayground.Controllers
 
         public IActionResult Index()
         {
-            var viewModel = _npcStorage.CreateRandomNPC();
+            var viewModel = _npcStorage.GetNpcs();
             return View(viewModel);
         }
 
         public IActionResult Random()
         {
-          ViewData["Message"] = "Look at this npc right here." ;
-
-          return View();
+            var viewModel = _npcStorage.CreateRandomNPC();
+            return View(viewModel);
         }
     }
 }

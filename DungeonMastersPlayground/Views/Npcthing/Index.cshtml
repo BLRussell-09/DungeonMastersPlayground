@@ -1,12 +1,51 @@
 ﻿
 @{
-  ViewData["Title"] = "Npc Page";
-} 
-
-@model DungeonMastersPlayground.Models.Npc
-<div>
-  <h2>@ViewData["Title"].</h2>
-  <h3>@Model.name</h3>
-  <h3>@Model.characteristics</h3>
+    ViewData["Title"] = "Index";
+}
+@model List<DungeonMastersPlayground.Models.Npc>
+<div class="container">
+  @{ 
+    var npcs = Model;
+    foreach (var npc in npcs)
+    {
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <h3>Name: @npc.name</h3>
+          <h3>Characteristics: @npc.characteristics</h3>
+          <h3>Ability Scores</h3>
+          <div>
+            @{
+              var abilityScores = npc.abilityScores.ToList();
+              foreach (var ability in abilityScores)
+              {
+                <ul class="list-group">
+                  <li class="list-group-item">
+                    <p>Strength : @ability.strength</p> <br />
+                  </li>
+                  <li class="list-group-item">
+                    <p>Dexterity: @ability.dexterity</p> <br />
+                  </li>
+                  <li class="list-group-item">
+                    <p>Constitution : @ability.constitution</p> <br />
+                  </li>
+                  <li class="list-group-item">
+                    <p>Wisdom : @ability.wisdom</p> <br />
+                  </li>
+                  <li class="list-group-item">
+                    <p>Intelligence : @ability.intelligence</p> <br />
+                  </li>
+                  <li class="list-group-item">
+                    <p>Charisma : @ability.charisma</p> <br />
+                  </li>
+                </ul>
+              }
+            }
+          </div>
+        </div>
+        </div>
+      }  
+    }
+  }
 </div>
+
 

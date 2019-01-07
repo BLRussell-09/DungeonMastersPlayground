@@ -1,12 +1,25 @@
-﻿
-@{
-    ViewData["Title"] = "Random";
+﻿@{
+  ViewData["Title"] = "Npc Page";
 }
 
 @model DungeonMastersPlayground.Models.Npc
-
-<h2>@ViewData["Title"].</h2>
-
-<h2>@Model.name</h2>
-<h3>@Model.characteristics</h3>
-
+<div class="container">
+  <h2 class="text-center">@ViewData["Title"]</h2>
+  <h3>Name: @Model.name</h3>
+  <h3>Characteristics: @Model.characteristics</h3>
+  <h3>Ability Scores</h3>
+  <div class="col-md-6">
+    @{
+      var abilityScores = Model.abilityScores.ToList();
+      foreach (var ability in abilityScores)
+      {
+        <p>Strength : @ability.strength</p> <br />
+        <p>Dexterity: @ability.dexterity</p> <br />
+        <p>Constitution : @ability.constitution</p> <br />
+        <p>Wisdom : @ability.wisdom</p> <br />
+        <p>Intelligence : @ability.intelligence</p> <br />
+        <p>Charisma : @ability.charisma</p> <br />
+      }
+    }
+  </div>
+</div>
