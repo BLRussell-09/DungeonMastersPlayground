@@ -29,5 +29,11 @@ namespace DungeonMastersPlayground.Controllers
             var viewModel = _npcStorage.CreateRandomNPC();
             return View(viewModel);
         }
+
+        public IActionResult Create()
+        {
+           //var viewModel = _npcStorage.AddNPC(npc);
+           return View();
+        }
     }
 }
