@@ -18,9 +18,10 @@ namespace _5eScraper.Models
     public List<StartingProficiency> starting_proficiencies { get; set; }
     public StartingProficiencyOptions starting_proficiency_options { get; set; }
     public List<Language> languages { get; set; }
-    public string language_desc { get; set; }
+    public string language_description { get; set; }
     public List<Trait> traits { get; set; }
     public List<Subrace> subraces { get; set; }
     public string url { get; set; }
+    public string firebaseId { get; set;}
   }
 }

@@ -8,5 +8,6 @@ namespace _5eScraper.Models
   {
     public string name { get; set; }
     public string url { get; set; }
+    public string firebaseId { get; set;}
   }
 }
