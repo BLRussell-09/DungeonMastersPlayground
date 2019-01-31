@@ -16,11 +16,24 @@ namespace DungeonMastersApi.Controllers
     {
       
       public readonly RaceStorage _raceStorage;
-      
+      List<string> races = new List<string>()
+      {
+        "Dwarf", "Elf", "Halfling", "Human", "Dragonborn", "Gnome", "Half-Elf", "Half-Orc", "Tiefling"
+      };
+
       public RaceController(IConfiguration config)
       {
         _raceStorage = new RaceStorage(config);
       }
+
+      [HttpGet("{id}")]
+      public IActionResult GetRaceById(int id)
+      {
+        
+        var raceString = races[id - 1];
+        return Ok(_raceStorage.GetRace(id, raceString));
+      }
+
 
       [HttpPost("add")]
       public IActionResult AddRace(Race race)

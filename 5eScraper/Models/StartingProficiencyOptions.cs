@@ -9,5 +9,7 @@ namespace _5eScraper.Models
     public int choose { get; set; }
     public string type { get; set; }
     public List<From> from { get; set; }
+    public int race_id { get; set; }
+    public string firebaseId { get; set;}
   }
 }

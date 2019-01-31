@@ -19,12 +19,15 @@ namespace _5eScraper
 
     static void Main(string[] args)
     {
+      for (int idx = 1; idx < 10; idx++)
+      {
+        Race deserializedJson = JsonConvert.DeserializeObject<Race>(WebScraper(idx));
+        deserializedJson.firebaseId = "stockData" + deserializedJson.name;
+        AddRace(deserializedJson);
+        Console.WriteLine($"The {deserializedJson.name} race has been successfully added to the database");
+      }
 
-      Race deserializedJson = JsonConvert.DeserializeObject<Race>(WebScraper(2));
-      string randId = "joshingMe3";
-      Console.WriteLine(deserializedJson.name);
-
-      AddRace(deserializedJson, randId);
+      Console.WriteLine("Finished");
       Console.Read();
     }
 
@@ -44,26 +47,49 @@ namespace _5eScraper
       }
     }
 
-    static bool AddRace(Race race, string id)
+    static bool AddRace(Race race)
     {
-       race.firebaseId = id;
-      foreach (var language in race.languages)
-      {
-        language.firebaseId = id;
-      }
+       race.race_id = race.index;
       using (var connection = new SqlConnection(conString))
       {
         connection.Open();
         var result = connection.Execute(@"INSERT INTO [dbo].[Race]([index],[name],[speed],[alignment],[age],
-                                        [size],[size_description],[language_description],[url],[firebaseId])
+                                        [size],[size_description],[language_description],[url],[race_id],[firebaseId])
                                         VALUES (@index,@name,@speed,@alignment,@age,
-                                        @size,@size_description,@language_description,@url,@firebaseId)", race);
+                                        @size,@size_description,@language_description,@url,@race_id,@firebaseId)", race);
 
         foreach (Language language in race.languages)
         {
-          connection.Execute(@"INSERT INTO [dbo].[Language]([name],[url],[firebaseId])
-                                VALUES (@name,@url,@firebaseId)", language);
+          language.firebaseId = race.firebaseId;
+          language.race_id = race.race_id;
+          connection.Execute(@"INSERT INTO [dbo].[Language]([name],[url],[race_id],[firebaseId])
+                                VALUES (@name,@url,@race_id,@firebaseId)", language);
         }
+
+        foreach (StartingProficiency proficiency in race.starting_proficiencies)
+        {
+          proficiency.firebaseId = race.firebaseId;
+          proficiency.race_id = race.race_id;
+          connection.Execute(@"INSERT INTO [dbo].[Starting_proficiency]([name],[url],[race_id],[firebaseId])
+                             VALUES (@name,@url,@race_id,@firebaseId)", proficiency);
+        }
+
+        foreach (Subrace subrace in race.subraces)
+        {
+          subrace.firebaseId = race.firebaseId;
+          subrace.race_id = race.race_id;
+          connection.Execute(@"INSERT INTO [dbo].[Subrace]([name],[url],[race_id],[firebaseId])
+                             VALUES (@name,@url,@race_id,@firebaseId)", subrace);
+        }
+
+        foreach (Trait trait in race.traits)
+        {
+          trait.firebaseId = race.firebaseId;
+          trait.race_id = race.race_id;
+          connection.Execute(@"INSERT INTO [dbo].[Trait]([name],[url],[race_id],[firebaseId])
+                             VALUES (@name,@url,@race_id,@firebaseId)", trait);
+        }
+
         return result == 1;
       }
     }

@@ -62,5 +62,6 @@ namespace DungeonMastersApi.Models
 
       return randomChar;
     }
+
   }
 }
