@@ -23,11 +23,12 @@ namespace _5eScraper
       {
         Race deserializedJson = JsonConvert.DeserializeObject<Race>(WebScraper(idx));
         deserializedJson.firebaseId = "stockData" + deserializedJson.name;
-        AddRace(deserializedJson);
-        Console.WriteLine($"The {deserializedJson.name} race has been successfully added to the database");
+        //AddRace(deserializedJson);
+        UpdateRace(deserializedJson.firebaseId, deserializedJson);
+        Console.WriteLine($"The {deserializedJson.name} race has been successfully updated!");
       }
 
-      Console.WriteLine("Finished");
+      Console.WriteLine("Finished, press enter to exit");
       Console.Read();
     }
 
@@ -88,6 +89,66 @@ namespace _5eScraper
           trait.race_id = race.race_id;
           connection.Execute(@"INSERT INTO [dbo].[Trait]([name],[url],[race_id],[firebaseId])
                              VALUES (@name,@url,@race_id,@firebaseId)", trait);
+        }
+
+        return result == 1;
+      }
+    }
+
+    static bool UpdateRace(string firebaseId, Race race)
+    {
+      var languages = race.languages;
+      var traits = race.traits;
+      var subraces = race.subraces;
+      var starting_proficiencies = race.starting_proficiencies;
+
+      using (var connection = new SqlConnection(conString))
+      {
+        connection.Open();
+        var result = connection.Execute(@"UPDATE [dbo].[Race]
+                                        SET [index] = @index,[name] = @name,[speed] = @speed,[alignment] = @alignment,[age] = @age,
+                                        [size] = @size,[size_description] = @size_description,[language_description] = @language_description,
+                                        [url] = @url
+                                        WHERE Race.firebaseId = @firebaseId", new
+        {
+          firebaseId,
+          index = race.index,
+          name = race.name,
+          speed = race.speed,
+          alignment = race.alignment,
+          age = race.age,
+          size = race.size,
+          size_description = race.size_description,
+          language_description = race.language_description,
+          url = race.url
+        });
+
+        foreach (Language language in languages)
+        {
+          connection.Execute(@"UPDATE [dbo].[Language]
+                             SET [name] = @name,[url] = @url
+                             WHERE Language.firebaseId = @firebaseId", new { name = language.name, url = language.url, firebaseId = firebaseId });
+        }
+
+        foreach (Trait trait in traits)
+        {
+          connection.Execute(@"UPDATE [dbo].[Trait]
+                             SET [name] = @name,[url] = @url
+                             WHERE Trait.firebaseId = @firebaseId", new { name = trait.name, url = trait.url, firebaseId = firebaseId });
+        }
+
+        foreach (Subrace subrace in subraces)
+        {
+          connection.Execute(@"UPDATE [dbo].[Subrace]
+                             SET [name] = @name,[url] = @url
+                             WHERE Subrace.firebaseId = @firebaseId", new { name = subrace.name, url = subrace.url, firebaseId = firebaseId });
+        }
+
+        foreach (StartingProficiency startingProficiency in starting_proficiencies)
+        {
+          connection.Execute(@"UPDATE [dbo].[Starting_proficiency]
+                             SET [name] = @name,[url] = @url
+                             WHERE Starting_proficiency.firebaseId = @firebaseId", new { name = startingProficiency.name, url = startingProficiency.url, firebaseId = firebaseId });
         }
 
         return result == 1;

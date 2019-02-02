@@ -40,5 +40,19 @@ namespace DungeonMastersApi.Controllers
       {
         return Ok(_raceStorage.AddRace(race));
       }
+
+      [HttpPut("update")]
+      public IActionResult UpdateRace([FromQuery] string firebaseId, Race race)
+      {
+        if (firebaseId != null)
+        {
+          return Ok(_raceStorage.UpdateRace(firebaseId, race));
+        }
+        else
+        {
+          string message = "You need to include a proper id";
+          return BadRequest(message);
+        }
+      }
     }
 }
