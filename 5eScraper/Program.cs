@@ -23,8 +23,9 @@ namespace _5eScraper
       {
         Race deserializedJson = JsonConvert.DeserializeObject<Race>(WebScraper(idx));
         deserializedJson.firebaseId = "stockData" + deserializedJson.name;
-        //AddRace(deserializedJson);
-        UpdateRace(deserializedJson.firebaseId, deserializedJson);
+        DeleteRace(deserializedJson.firebaseId);
+        AddRace(deserializedJson);
+        //UpdateRace(deserializedJson.firebaseId, deserializedJson);
         Console.WriteLine($"The {deserializedJson.name} race has been successfully updated!");
       }
 
@@ -55,14 +56,14 @@ namespace _5eScraper
       {
         connection.Open();
         var result = connection.Execute(@"INSERT INTO [dbo].[Race]([index],[name],[speed],[alignment],[age],
-                                        [size],[size_description],[language_description],[url],[race_id],[firebaseId])
+                                        [size],[size_description],[language_description],[url],[race_id],[firebaseId],[_id])
                                         VALUES (@index,@name,@speed,@alignment,@age,
-                                        @size,@size_description,@language_description,@url,@race_id,@firebaseId)", race);
+                                        @size,@size_description,@language_description,@url,@race_id,@firebaseId,@_id)", race);
 
         foreach (Language language in race.languages)
         {
           language.firebaseId = race.firebaseId;
-          language.race_id = race.race_id;
+          language.race_id = race._id;
           connection.Execute(@"INSERT INTO [dbo].[Language]([name],[url],[race_id],[firebaseId])
                                 VALUES (@name,@url,@race_id,@firebaseId)", language);
         }
@@ -70,7 +71,7 @@ namespace _5eScraper
         foreach (StartingProficiency proficiency in race.starting_proficiencies)
         {
           proficiency.firebaseId = race.firebaseId;
-          proficiency.race_id = race.race_id;
+          proficiency.race_id = race._id;
           connection.Execute(@"INSERT INTO [dbo].[Starting_proficiency]([name],[url],[race_id],[firebaseId])
                              VALUES (@name,@url,@race_id,@firebaseId)", proficiency);
         }
@@ -78,7 +79,7 @@ namespace _5eScraper
         foreach (Subrace subrace in race.subraces)
         {
           subrace.firebaseId = race.firebaseId;
-          subrace.race_id = race.race_id;
+          subrace.race_id = race._id;
           connection.Execute(@"INSERT INTO [dbo].[Subrace]([name],[url],[race_id],[firebaseId])
                              VALUES (@name,@url,@race_id,@firebaseId)", subrace);
         }
@@ -86,7 +87,7 @@ namespace _5eScraper
         foreach (Trait trait in race.traits)
         {
           trait.firebaseId = race.firebaseId;
-          trait.race_id = race.race_id;
+          trait.race_id = race._id;
           connection.Execute(@"INSERT INTO [dbo].[Trait]([name],[url],[race_id],[firebaseId])
                              VALUES (@name,@url,@race_id,@firebaseId)", trait);
         }
@@ -127,7 +128,7 @@ namespace _5eScraper
         {
           connection.Execute(@"UPDATE [dbo].[Language]
                              SET [name] = @name,[url] = @url
-                             WHERE Language.firebaseId = @firebaseId", new { name = language.name, url = language.url, firebaseId = firebaseId });
+                             WHERE Language.firebaseId = @firebaseId and Language.id = @id", new { name = language.name, url = language.url, firebaseId = firebaseId });
         }
 
         foreach (Trait trait in traits)
@@ -150,6 +151,17 @@ namespace _5eScraper
                              SET [name] = @name,[url] = @url
                              WHERE Starting_proficiency.firebaseId = @firebaseId", new { name = startingProficiency.name, url = startingProficiency.url, firebaseId = firebaseId });
         }
+
+        return result == 1;
+      }
+    }
+
+    static bool DeleteRace(string firebaseId)
+    {
+      using (var connection = new SqlConnection(conString))
+      {
+        var result = connection.Execute(@"DELETE FROM [dbo].[Race]
+                           WHERE Race.firebaseId = @firebaseId", new { firebaseId = firebaseId });
 
         return result == 1;
       }

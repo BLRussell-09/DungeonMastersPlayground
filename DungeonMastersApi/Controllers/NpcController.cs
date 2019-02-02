@@ -36,15 +36,17 @@ namespace DungeonMastersApi.Controllers
     [HttpPost("add")]
     public IActionResult AddNpc(Npc npc)
     {
-      return Ok(_npcStorage.AddNPC(npc));
+      var race = npc.race;
+
+      return Ok(_npcStorage.AddNPC(npc, race));
     }
 
     [HttpPost("create_random")]
     public IActionResult CreateRandomNPC()
     {
       Npc npc = _npcStorage.CreateRandomNPC();
-
-      return Ok(_npcStorage.AddNPC(npc));
+      var race = npc.race;
+      return Ok(_npcStorage.AddNPC(npc, race));
     }
   }
 }

@@ -42,19 +42,19 @@ namespace DungeonMastersApi.DataAccess
 
         var languages = connection.Query<Language>(@"Select * 
                                                from Language as l
-                                               where l.race_id = @id and l.firebaseId = @raceString", new { id = raceId, raceString = raceString});
+                                               where l.firebaseId = @raceString", new { raceString = raceString});
 
         var traits = connection.Query<Trait>(@"Select * 
                                             from Trait as t
-                                            where t.race_id = @id and t.firebaseId = @raceString", new { id = raceId, raceString = raceString});
+                                            where t.firebaseId = @raceString", new { raceString = raceString});
 
         var subraces = connection.Query<Subrace>(@"Select *
                                                  from Subrace as sb
-                                                 where sb.race_id = @id and sb.firebaseId = @raceString", new { id = raceId, raceString = raceString});
+                                                 where sb.firebaseId = @raceString", new { raceString = raceString});
 
         var proficiencies = connection.Query<StartingProficiency>(@"Select *
                                                                   from Starting_proficiency as sp
-                                                                  where sp.race_id = @id and sp.firebaseId = @raceString", new { id = raceId, raceString = raceString});
+                                                                  where sp.firebaseId = @raceString", new { raceString = raceString});
 
         result.ElementAt(0).languages = languages.ToList();
         result.ElementAt(0).traits = traits.ToList();
@@ -92,6 +92,34 @@ namespace DungeonMastersApi.DataAccess
           language_description = race.language_description,
           url = race.url
         });
+
+        foreach (Language language in languages)
+        {
+          connection.Execute(@"UPDATE [dbo].[Language]
+                             SET [name] = @name,[url] = @url
+                             WHERE Language.firebaseId = @firebaseId and Language.id = @id", new { name = language.name, url = language.url, firebaseId = firebaseId, id = language.id });
+        }
+
+        foreach (Trait trait in traits)
+        {
+          connection.Execute(@"UPDATE [dbo].[Trait]
+                             SET [name] = @name,[url] = @url
+                             WHERE Trait.firebaseId = @firebaseId", new { name = trait.name, url = trait.url, firebaseId = firebaseId, id = trait.id });
+        }
+
+        foreach (Subrace subrace in subraces)
+        {
+          connection.Execute(@"UPDATE [dbo].[Subrace]
+                             SET [name] = @name,[url] = @url
+                             WHERE Subrace.firebaseId = @firebaseId", new { name = subrace.name, url = subrace.url, firebaseId = firebaseId, id = subrace.id });
+        }
+
+        foreach (StartingProficiency startingProficiency in starting_proficiencies)
+        {
+          connection.Execute(@"UPDATE [dbo].[Starting_proficiency]
+                             SET [name] = @name,[url] = @url
+                             WHERE Starting_proficiency.firebaseId = @firebaseId", new { name = startingProficiency.name, url = startingProficiency.url, firebaseId = firebaseId, id = startingProficiency.id });
+        }
 
         return result == 1;
       }
