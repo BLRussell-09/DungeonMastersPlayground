@@ -64,5 +64,37 @@ namespace DungeonMastersApi.DataAccess
         return result;
       }
     }
+
+    public bool UpdateRace(string firebaseId, Race race)
+    {
+      var languages =  race.languages;
+      var traits = race.traits;
+      var subraces = race.subraces;
+      var starting_proficiencies = race.starting_proficiencies;
+
+      using (var connection = new SqlConnection(conString))
+      {
+        connection.Open();
+        var result = connection.Execute(@"UPDATE [dbo].[Race]
+                                        SET [index] = @index,[name] = @name,[speed] = @speed,[alignment] = @alignment,[age] = @age,
+                                        [size] = @size,[size_description] = @size_description,[language_description] = @language_description,
+                                        [url] = @url
+                                        WHERE Race.firebaseId = @firebaseId", new
+        {
+          firebaseId,
+          index = race.index,
+          name = race.name,
+          speed = race.speed,
+          alignment = race.alignment,
+          age = race.age,
+          size = race.size,
+          size_description = race.size_description,
+          language_description = race.language_description,
+          url = race.url
+        });
+
+        return result == 1;
+      }
+    }
   }
 }
