@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using _5eScraper.Models;
+using Dapper;
 using DungeonMastersApi.Models;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -12,6 +13,11 @@ namespace DungeonMastersApi.DataAccess
   public class NpcStorage
   {
     private readonly string conString;
+    public RaceStorage _raceStorage;
+    List<string> races = new List<string>()
+    {
+      "Dwarf", "Elf", "Halfling", "Human", "Dragonborn", "Gnome", "Half-Elf", "Half-Orc", "Tiefling"
+    };
 
     public NpcStorage(IConfiguration config)
     {
@@ -35,6 +41,21 @@ namespace DungeonMastersApi.DataAccess
           npc.abilityScores = npcAbs;
         }
 
+        for (int idx = 0; idx < result.Count(); idx++)
+        {
+          var npc = result.ElementAt(idx);
+          int npcId = npc.id;
+          string npcFirebase = npc.name;
+          var npcRace = connection.Query<Race>(@"select * 
+                                              from Race as r
+                                              where r.firebaseId = @id", new { id = npcFirebase }).ToList();
+          if (npcRace.Count() > 0)
+          {
+            npc.race = npcRace[0];
+          }
+          
+        }
+
         return result;
       }
     }
@@ -49,8 +70,9 @@ namespace DungeonMastersApi.DataAccess
       return npc;
     }
 
-    public bool AddNPC(Npc npc)
+    public bool AddNPC(Npc npc, Race race)
     {
+      race.firebaseId = npc.name;
       using (var connection = new SqlConnection(conString))
       {
         connection.Open();
@@ -63,6 +85,9 @@ namespace DungeonMastersApi.DataAccess
                         and n.characteristics = @characteristics", new { name = npc.name, characteristics = npc.characteristics });
         var abScores = npc.abilityScores.ElementAt(0);
         AddAbilityScore(thisNpc.ElementAt(0), abScores);
+        race._id = race._id + npc.name;
+        race.firebaseId = npc.name;
+        AddRace(race);
 
         return result == 1;
       }
@@ -102,6 +127,19 @@ namespace DungeonMastersApi.DataAccess
           intelligence = abs.intelligence,
           charisma = abs.charisma
         });
+        return result == 1;
+      }
+    }
+
+    public bool AddRace(Race race)
+    {
+
+      using (var connection = new SqlConnection(conString))
+      {
+        connection.Open();
+        var result = connection.Execute(@"INSERT INTO [dbo].[Race]([index],[name],[speed],[alignment],[age],[size],[size_description],[language_description],[url],[_id],[firebaseId])
+                                            VALUES (@index,@name,@speed,@alignment,@age,@size,@size_description,@language_description,@url,@_id,@firebaseId)", race);
+
         return result == 1;
       }
     }
