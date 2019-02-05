@@ -25,8 +25,15 @@ namespace _5eScraper
         deserializedJson.firebaseId = "stockData" + deserializedJson.name;
         DeleteRace(deserializedJson.firebaseId);
         AddRace(deserializedJson);
-        //UpdateRace(deserializedJson.firebaseId, deserializedJson);
         Console.WriteLine($"The {deserializedJson.name} race has been successfully updated!");
+      }
+
+      for (int idx = 1; idx < 13; idx++)
+      {
+        Class classHere = JsonConvert.DeserializeObject<Class>(ClassScraper(idx));
+        DeleteClass(classHere._id);
+        AddClass(classHere);
+        Console.WriteLine(classHere.name);
       }
 
       Console.WriteLine("Finished, press enter to exit");
@@ -38,6 +45,21 @@ namespace _5eScraper
       string html = string.Empty;
       string url = "http://www.dnd5eapi.co/api/races/" + raceId;
 
+
+      HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+      request.AutomaticDecompression = DecompressionMethods.GZip;
+      using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+      using (Stream stream = response.GetResponseStream())
+      using (StreamReader reader = new StreamReader(stream))
+      {
+        return html = reader.ReadToEnd();
+      }
+    }
+
+    static string ClassScraper(int classId)
+    {
+      string html = string.Empty;
+      string url = "http://www.dnd5eapi.co/api/classes/" + classId;
 
       HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
       request.AutomaticDecompression = DecompressionMethods.GZip;
@@ -96,60 +118,41 @@ namespace _5eScraper
       }
     }
 
-    static bool UpdateRace(string firebaseId, Race race)
+    static bool AddClass(Class fiveClass)
     {
-      var languages = race.languages;
-      var traits = race.traits;
-      var subraces = race.subraces;
-      var starting_proficiencies = race.starting_proficiencies;
-
       using (var connection = new SqlConnection(conString))
       {
         connection.Open();
-        var result = connection.Execute(@"UPDATE [dbo].[Race]
-                                        SET [index] = @index,[name] = @name,[speed] = @speed,[alignment] = @alignment,[age] = @age,
-                                        [size] = @size,[size_description] = @size_description,[language_description] = @language_description,
-                                        [url] = @url
-                                        WHERE Race.firebaseId = @firebaseId", new
-        {
-          firebaseId,
-          index = race.index,
-          name = race.name,
-          speed = race.speed,
-          alignment = race.alignment,
-          age = race.age,
-          size = race.size,
-          size_description = race.size_description,
-          language_description = race.language_description,
-          url = race.url
-        });
+        var result = connection.Execute(@"INSERT INTO [dbo].[Class]([_id],[index],[name],[hit_die],[url])
+                                        VALUES (@_id,@index,@name,@hit_die,@url)", fiveClass);
 
-        foreach (Language language in languages)
+        foreach (Proficiency proficiency in fiveClass.proficiencies)
         {
-          connection.Execute(@"UPDATE [dbo].[Language]
-                             SET [name] = @name,[url] = @url
-                             WHERE Language.firebaseId = @firebaseId and Language.id = @id", new { name = language.name, url = language.url, firebaseId = firebaseId });
+          proficiency.class_id = fiveClass._id;
+          connection.Execute(@"INSERT INTO [dbo].[Proficiencies]([name],[url],[class_id])
+                             VALUES (@name,@url,@class_id)", proficiency);
         }
 
-        foreach (Trait trait in traits)
+        foreach (Saving_Throws savingThrow in fiveClass.saving_throws)
         {
-          connection.Execute(@"UPDATE [dbo].[Trait]
-                             SET [name] = @name,[url] = @url
-                             WHERE Trait.firebaseId = @firebaseId", new { name = trait.name, url = trait.url, firebaseId = firebaseId });
+          savingThrow.class_id = fiveClass._id;
+          connection.Execute(@"INSERT INTO [dbo].[Saving_Throws]([name],[url],[class_id])
+                             VALUES (@name,@url,@class_id)", savingThrow);
         }
 
-        foreach (Subrace subrace in subraces)
+        foreach (ProficiencyChoice proficiencyChoice in fiveClass.proficiency_choices)
         {
-          connection.Execute(@"UPDATE [dbo].[Subrace]
-                             SET [name] = @name,[url] = @url
-                             WHERE Subrace.firebaseId = @firebaseId", new { name = subrace.name, url = subrace.url, firebaseId = firebaseId });
-        }
+          proficiencyChoice.class_id = fiveClass._id;
+          connection.Execute(@"INSERT INTO [dbo].[Proficiency_Choices]([type],[choose],[class_id])
+                             VALUES (@type,@choose,@class_id)", proficiencyChoice);
 
-        foreach (StartingProficiency startingProficiency in starting_proficiencies)
-        {
-          connection.Execute(@"UPDATE [dbo].[Starting_proficiency]
-                             SET [name] = @name,[url] = @url
-                             WHERE Starting_proficiency.firebaseId = @firebaseId", new { name = startingProficiency.name, url = startingProficiency.url, firebaseId = firebaseId });
+          foreach (From from in proficiencyChoice.from)
+          {
+            from.class_id = fiveClass._id;
+            
+            connection.Execute(@"INSERT INTO [dbo].[FromP]([name],[url],[class_id])
+                               VALUES (@name,@url,@class_id)", from);
+          }
         }
 
         return result == 1;
@@ -162,6 +165,17 @@ namespace _5eScraper
       {
         var result = connection.Execute(@"DELETE FROM [dbo].[Race]
                            WHERE Race.firebaseId = @firebaseId", new { firebaseId = firebaseId });
+
+        return result == 1;
+      }
+    }
+
+    static bool DeleteClass(string classId)
+    {
+      using (var connection = new SqlConnection(conString))
+      {
+        var result = connection.Execute(@"DELETE FROM [dbo].[Class]
+                                        WHERE Class._id = @id", new { id = classId });
 
         return result == 1;
       }

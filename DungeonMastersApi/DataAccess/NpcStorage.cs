@@ -13,7 +13,7 @@ namespace DungeonMastersApi.DataAccess
   public class NpcStorage
   {
     private readonly string conString;
-    public RaceStorage _raceStorage;
+    public  readonly RaceStorage _raceStorage;
     List<string> races = new List<string>()
     {
       "Dwarf", "Elf", "Halfling", "Human", "Dragonborn", "Gnome", "Half-Elf", "Half-Orc", "Tiefling"
@@ -22,7 +22,9 @@ namespace DungeonMastersApi.DataAccess
     public NpcStorage(IConfiguration config)
     {
       conString = config.GetSection("ConnectionString").Value;
+      _raceStorage = new RaceStorage(config);
     }
+
 
     public IEnumerable<Npc> GetNpcs()
     {
@@ -35,26 +37,87 @@ namespace DungeonMastersApi.DataAccess
         {
           var npc = result.ElementAt(idx);
           int npcId = npc.id;
+          string npcFirebase = npc.name;
+
           var npcAbs = connection.Query<ABS>(@"select * 
                       from AbilityScores as a
                        where a.owner_id = @id", new { id = npcId }).ToList();
-          npc.abilityScores = npcAbs;
-        }
 
-        for (int idx = 0; idx < result.Count(); idx++)
-        {
-          var npc = result.ElementAt(idx);
-          int npcId = npc.id;
-          string npcFirebase = npc.name;
           var npcRace = connection.Query<Race>(@"select * 
                                               from Race as r
                                               where r.firebaseId = @id", new { id = npcFirebase }).ToList();
+
+          var languages = connection.Query<Language>(@"Select * 
+                                               from Language as l
+                                               where l.firebaseId = @id", new { id = npcFirebase });
+
+          var traits = connection.Query<Trait>(@"Select * 
+                                            from Trait as t
+                                            where t.firebaseId = @id", new { id = npcFirebase });
+
+          var subraces = connection.Query<Subrace>(@"Select *
+                                                 from Subrace as sb
+                                                 where sb.firebaseId = @id", new { id = npcFirebase });
+
+          var proficiencies = connection.Query<StartingProficiency>(@"Select *
+                                                                  from Starting_proficiency as sp
+                                                                  where sp.firebaseId = @id", new { id = npcFirebase });
+
           if (npcRace.Count() > 0)
           {
             npc.race = npcRace[0];
+            npc.abilityScores = npcAbs;
+            npc.race.languages = languages.ToList();
+            npc.race.traits = traits.ToList();
+            npc.race.subraces = subraces.ToList();
+            npc.race.starting_proficiencies = proficiencies.ToList();
           }
           
         }
+
+        return result;
+      }
+    }
+
+    public IEnumerable<Npc> GetNpc(int id)
+    {
+      using (var connection = new SqlConnection(conString))
+      {
+        connection.Open();
+        var result = connection.Query<Npc>(@"Select * from Npc as n
+                                          where n.id = @id", new { id = id});
+        
+        var npc = result.ToList()[0];
+
+        var npcAbs = connection.Query<ABS>(@"select * 
+                      from AbilityScores as a
+                       where a.owner_id = @id", new { id = npc.id }).ToList();
+
+        var npcRace = connection.Query<Race>(@"select * 
+                                              from Race as r
+                                              where r.firebaseId = @id", new { id = npc.name }).ToList();
+
+        var languages = connection.Query<Language>(@"Select * 
+                                               from Language as l
+                                               where l.firebaseId = @id", new { id = npc.name });
+
+        var traits = connection.Query<Trait>(@"Select * 
+                                            from Trait as t
+                                            where t.firebaseId = @id", new { id = npc.name });
+
+        var subraces = connection.Query<Subrace>(@"Select *
+                                                 from Subrace as sb
+                                                 where sb.firebaseId = @id", new { id = npc.name });
+
+        var proficiencies = connection.Query<StartingProficiency>(@"Select *
+                                                                  from Starting_proficiency as sp
+                                                                  where sp.firebaseId = @id", new { id = npc.name });
+
+        npc.race = npcRace[0];
+        npc.race.languages = languages.ToList();
+        npc.race.traits = traits.ToList();
+        npc.race.subraces = subraces.ToList();
+        npc.race.starting_proficiencies = proficiencies.ToList();
 
         return result;
       }
@@ -87,8 +150,7 @@ namespace DungeonMastersApi.DataAccess
         AddAbilityScore(thisNpc.ElementAt(0), abScores);
         race._id = race._id + npc.name;
         race.firebaseId = npc.name;
-        AddRace(race);
-
+        _raceStorage.AddRace(race);
         return result == 1;
       }
     }
@@ -131,17 +193,5 @@ namespace DungeonMastersApi.DataAccess
       }
     }
 
-    public bool AddRace(Race race)
-    {
-
-      using (var connection = new SqlConnection(conString))
-      {
-        connection.Open();
-        var result = connection.Execute(@"INSERT INTO [dbo].[Race]([index],[name],[speed],[alignment],[age],[size],[size_description],[language_description],[url],[_id],[firebaseId])
-                                            VALUES (@index,@name,@speed,@alignment,@age,@size,@size_description,@language_description,@url,@_id,@firebaseId)", race);
-
-        return result == 1;
-      }
-    }
   }
 }

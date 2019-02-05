@@ -23,8 +23,40 @@ namespace DungeonMastersApi.DataAccess
       using (var connection = new SqlConnection(conString))
       {
         connection.Open();
-        var result = connection.Execute(@"INSERT INTO [dbo].[Race]([index],[name],[speed],[alignment],[age],[size],[size_description],[language_description],[url])
-                                            VALUES (@index,@name,@speed,@alignment,@age,@size,@size_description,@language_description,@url)", race);
+        var result = connection.Execute(@"INSERT INTO [dbo].[Race]([index],[name],[speed],[alignment],[age],[size],[size_description],[language_description],[url],[_id],[firebaseId])
+                                            VALUES (@index,@name,@speed,@alignment,@age,@size,@size_description,@language_description,@url,@_id,@firebaseId)", race);
+
+        foreach (Language language in race.languages)
+        {
+          language.firebaseId = race.firebaseId;
+          language.race_id = race._id;
+          connection.Execute(@"INSERT INTO [dbo].[Language]([name],[url],[race_id],[firebaseId])
+                                VALUES (@name,@url,@race_id,@firebaseId)", language);
+        }
+
+        foreach (StartingProficiency proficiency in race.starting_proficiencies)
+        {
+          proficiency.firebaseId = race.firebaseId;
+          proficiency.race_id = race._id;
+          connection.Execute(@"INSERT INTO [dbo].[Starting_proficiency]([name],[url],[race_id],[firebaseId])
+                             VALUES (@name,@url,@race_id,@firebaseId)", proficiency);
+        }
+
+        foreach (Subrace subrace in race.subraces)
+        {
+          subrace.firebaseId = race.firebaseId;
+          subrace.race_id = race._id;
+          connection.Execute(@"INSERT INTO [dbo].[Subrace]([name],[url],[race_id],[firebaseId])
+                             VALUES (@name,@url,@race_id,@firebaseId)", subrace);
+        }
+
+        foreach (Trait trait in race.traits)
+        {
+          trait.firebaseId = race.firebaseId;
+          trait.race_id = race._id;
+          connection.Execute(@"INSERT INTO [dbo].[Trait]([name],[url],[race_id],[firebaseId])
+                             VALUES (@name,@url,@race_id,@firebaseId)", trait);
+        }
 
         return result == 1;
       }
