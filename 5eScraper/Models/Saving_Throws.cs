@@ -4,7 +4,7 @@ using System.Text;
 
 namespace _5eScraper.Models
 {
-  class Saving_Throws
+  public class Saving_Throws
   {
     public string name { get; set; }
     public string url { get; set; }

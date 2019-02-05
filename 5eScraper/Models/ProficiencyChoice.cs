@@ -4,7 +4,7 @@ using System.Text;
 
 namespace _5eScraper.Models
 {
-  class ProficiencyChoice
+  public class ProficiencyChoice
   {
     public List<From> from { get; set; }
     public string type { get; set; }
