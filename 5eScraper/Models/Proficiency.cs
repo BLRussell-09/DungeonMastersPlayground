@@ -4,7 +4,7 @@ using System.Text;
 
 namespace _5eScraper.Models
 {
-  public class From
+  class Proficiency
   {
     public string name { get; set; }
     public string url { get; set; }

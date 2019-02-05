@@ -4,10 +4,11 @@ using System.Text;
 
 namespace _5eScraper.Models
 {
-  public class From
+  class ProficiencyChoice
   {
-    public string name { get; set; }
-    public string url { get; set; }
+    public List<From> from { get; set; }
+    public string type { get; set; }
+    public int choose { get; set; }
     public string class_id { get; set; }
   }
 }

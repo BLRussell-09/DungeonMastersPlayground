@@ -14,17 +14,25 @@ namespace DungeonMastersApi.Controllers
     [ApiController]
     public class NpcController : ControllerBase
     {
-    private readonly NpcStorage _npcStorage;
+      private readonly NpcStorage _npcStorage;
+      private readonly RaceStorage _raceStorage;
 
     public NpcController(IConfiguration config)
     {
       _npcStorage = new NpcStorage(config);
+      _raceStorage = new RaceStorage(config);
     }
 
     [HttpGet]
     public IActionResult GetNpcs()
     {
       return Ok(_npcStorage.GetNpcs());
+    }
+
+    [HttpGet("{id}")]
+    public IActionResult GetNpc(int id)
+    {
+      return Ok(_npcStorage.GetNpc(id));
     }
 
     [HttpGet("random")]
