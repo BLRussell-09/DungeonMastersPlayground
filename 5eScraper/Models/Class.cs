@@ -4,7 +4,7 @@ using System.Text;
 
 namespace _5eScraper.Models
 {
-  class Class
+  public class Class
   {
     public string _id { get; set; }
     public int index { get; set; }
