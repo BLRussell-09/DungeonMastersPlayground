@@ -20,6 +20,8 @@ namespace DungeonMastersApi.Models
     public int wisMod { get; set; }
     public int chaMod { get; set; }
     public int owner_id { get; set; }
+    public int pc_id { get; set; }
+    public string firebase_id { get; set; }
 
     private Random _random = new Random();
 
