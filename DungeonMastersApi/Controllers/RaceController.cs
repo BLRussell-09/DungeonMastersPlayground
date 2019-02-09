@@ -14,45 +14,19 @@ namespace DungeonMastersApi.Controllers
     [ApiController]
     public class RaceController : ControllerBase
     {
-      
-      public readonly RaceStorage _raceStorage;
-      List<string> races = new List<string>()
-      {
-        "Dwarf", "Elf", "Halfling", "Human", "Dragonborn", "Gnome", "Half-Elf", "Half-Orc", "Tiefling"
-      };
+ 
+        private readonly BaseStorage _baseStorage;
+        public RaceController(IConfiguration config)
+        {
+          _baseStorage = new BaseStorage(config);
+        }
 
-      public RaceController(IConfiguration config)
-      {
-        _raceStorage = new RaceStorage(config);
-      }
-
-      [HttpGet("{id}")]
-      public IActionResult GetRaceById(int id)
-      {
+        [HttpGet("{race}")]
+        public IActionResult GetRaceByName(string race)
+        {
         
-        var raceString = races[id - 1];
-        return Ok(_raceStorage.GetRace(id, raceString));
-      }
-
-
-      [HttpPost("add")]
-      public IActionResult AddRace(Race race)
-      {
-        return Ok(_raceStorage.AddRace(race));
-      }
-
-      [HttpPut("update")]
-      public IActionResult UpdateRace([FromQuery] string firebaseId, Race race)
-      {
-        if (firebaseId != null)
-        {
-          return Ok(_raceStorage.UpdateRace(firebaseId, race));
+            race.ToLower();
+            return Ok( _baseStorage.GetRace(race));
         }
-        else
-        {
-          string message = "You need to include a proper id";
-          return BadRequest(message);
-        }
-      }
     }
 }

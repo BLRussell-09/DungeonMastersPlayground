@@ -12,13 +12,7 @@ namespace DungeonMastersApi.Models
     public int constitution { get; set; }
     public int intelligence { get; set; }
     public int wisdom { get; set; }
-    public int charisma { get; set; }
-    public int strMod { get; set; }
-    public int dexMod { get; set; }
-    public int conMod { get; set; }
-    public int intMod { get; set; }
-    public int wisMod { get; set; }
-    public int chaMod { get; set; }
+    public int charisma { get; set; } 
     public int owner_id { get; set; }
     public int pc_id { get; set; }
     public string firebase_id { get; set; }
@@ -32,7 +26,7 @@ namespace DungeonMastersApi.Models
       return number;
     }
 
-    public List<ABS> randomABS()
+    public ABS randomABS()
     {
 
       ABS abilityScores = new ABS();
@@ -43,18 +37,11 @@ namespace DungeonMastersApi.Models
       abilityScores.constitution = randNum(6, 18);
       abilityScores.intelligence = randNum(6, 18);
       abilityScores.wisdom = randNum(6, 18);
-      abilityScores.charisma = randNum(6, 18);
-
-      abilityScores.strMod = (abilityScores.strength - 10) / 2;
-      abilityScores.dexMod = (abilityScores.dexterity - 10) / 2;
-      abilityScores.conMod = (abilityScores.constitution - 10) / 2;
-      abilityScores.intMod = (abilityScores.intelligence - 10) / 2;
-      abilityScores.wisMod = (abilityScores.wisdom - 10) / 2;
-      abilityScores.chaMod = (abilityScores.charisma - 10) / 2;
+      abilityScores.charisma = randNum(6, 18); 
 
       abList.Add(abilityScores);
 
-      return abList;
+      return abilityScores;
     }
   }
 }

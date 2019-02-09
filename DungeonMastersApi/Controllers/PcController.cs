@@ -21,17 +21,44 @@ namespace DungeonMastersApi.Controllers
           _pcStorage = new PcStorage(configuration);
         }
 
-        [HttpPost("add")]
-        public IActionResult AddPc (Pc pc)
+        [HttpGet("{id}")]
+        public IActionResult GetPc(int id)
         {
-            if (pc != null)
+            if (id > 0)
+            {
+                return Ok(_pcStorage.GetPc(id));
+            }
+            else
+            {
+                string message = "Please include an id that is greater than 0";
+                return BadRequest(message);
+            }
+        }
+
+        [HttpPost("add")]
+        public IActionResult AddPc(Pc pc)
+        {
+            if (pc != null && pc.type == "pc")
             {
               return Ok(_pcStorage.AddPc(pc));
             }
             else
             {
-              string message = "Please use a valid character";
+              string message = "Please use a valid character with type: pc";
               return BadRequest(message);
+            }
+        }
+
+        [HttpPut]
+        public IActionResult UpdatePc(Pc pc)
+        {
+            if (pc != null)
+            {
+                return Ok(_pcStorage.UpdatePc(pc));
+            }
+            else
+            {
+                return BadRequest();
             }
         }
     }

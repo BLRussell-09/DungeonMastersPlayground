@@ -13,6 +13,9 @@ namespace DungeonMastersApi.Models
     public string characteristics { get; set; }
     public List<ABS> abilityScores { get; set; }
     public Race race { get; set;}
+    public string race_name { get; set; }
+    public List<PcClass> npcClasses { get; set; }
+    public string firebaseId { get; set; }
 
     private Random _random = new Random();
 
