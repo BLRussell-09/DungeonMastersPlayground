@@ -14,47 +14,60 @@ namespace DungeonMastersApi.Controllers
     [ApiController]
     public class NpcController : ControllerBase
     {
-      private readonly NpcStorage _npcStorage;
-      private readonly RaceStorage _raceStorage;
+        private readonly NpcStorage _npcStorage;
+        private readonly PcStorage _pcStorage;
+        public NpcController(IConfiguration config)
+        {
+          _npcStorage = new NpcStorage(config);
+          _pcStorage = new PcStorage(config);
+        }
 
-    public NpcController(IConfiguration config)
-    {
-      _npcStorage = new NpcStorage(config);
-      _raceStorage = new RaceStorage(config);
+        [HttpGet("{id}")]
+        public IActionResult GetNpc(int id)
+        {
+          return Ok(_pcStorage.GetPc(id));
+        }
+
+        [HttpGet("random")]
+        public Pc GenerateNPC()
+        {
+          return _npcStorage.CreateRandomNPC();
+        }
+
+        [HttpPost("add")]
+        public IActionResult AddNpc(Pc npc)
+        {
+            var race = npc.race;
+            if (npc != null && npc.type == "npc")
+            {
+                return Ok(_pcStorage.AddPc(npc));
+            }
+            else
+            {
+                string message = "Please use a valid character with type: npc";
+                return BadRequest(message);
+            }
+        }
+
+        [HttpPut]
+        public IActionResult UpdateNpc(Pc npc)
+        {
+            if (npc != null )
+            {
+                return Ok(_pcStorage.UpdatePc(npc));
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        //[HttpPost("create_random")]
+        //public IActionResult CreateRandomNPC()
+        //{
+        //  Npc npc = _npcStorage.CreateRandomNPC();
+        //  var race = npc.race;
+        //  return Ok(_npcStorage.AddNPC(npc, race));
+        //}
     }
-
-    [HttpGet]
-    public IActionResult GetNpcs()
-    {
-      return Ok(_npcStorage.GetNpcs());
-    }
-
-    [HttpGet("{id}")]
-    public IActionResult GetNpc(int id)
-    {
-      return Ok(_npcStorage.GetNpc(id));
-    }
-
-    [HttpGet("random")]
-    public Npc GenerateNPC()
-    {
-      return _npcStorage.CreateRandomNPC();
-    }
-
-    [HttpPost("add")]
-    public IActionResult AddNpc(Npc npc)
-    {
-      var race = npc.race;
-
-      return Ok(_npcStorage.AddNPC(npc, race));
-    }
-
-    [HttpPost("create_random")]
-    public IActionResult CreateRandomNPC()
-    {
-      Npc npc = _npcStorage.CreateRandomNPC();
-      var race = npc.race;
-      return Ok(_npcStorage.AddNPC(npc, race));
-    }
-  }
 }

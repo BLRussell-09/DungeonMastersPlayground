@@ -6,16 +6,25 @@ using System.Threading.Tasks;
 
 namespace DungeonMastersApi.Models
 {
-  public class Npc
+  public class Pc
   {
     public int id { get; set; }
     public string name { get; set; }
     public string characteristics { get; set; }
-    public List<ABS> abilityScores { get; set; }
-    public Race race { get; set;}
+    public string description { get; set; }
+    public int hit_points { get; set; }
+    public int proficiency_score { get; set; }
+    public int experience { get; set; }
+    public int level { get; set; }
+    public bool is_active { get; set; }
+    public List<Weapons> weapons { get; set; }
+    public List<PcClass> playerClasses { get; set; }
     public string race_name { get; set; }
-    public List<PcClass> npcClasses { get; set; }
-    public string firebaseId { get; set; }
+    public string firebase_id { get; set; }
+    public Race race { get; set; }
+    public List<Class> classes { get; set; }
+    public ABS abilityScores { get; set; }
+    public string type { get; set; }
 
     private Random _random = new Random();
 
@@ -66,5 +75,16 @@ namespace DungeonMastersApi.Models
       return randomChar;
     }
 
+    public string randRace()
+    {
+      string[] races = 
+      {
+        "Dwarf", "Elf", "Halfling", "Human", "Dragonborn", "Gnome", "Half-Elf", "Half-Orc", "Tiefling"
+      };
+
+      int raceIndex = _random.Next(races.Length);
+      string randomRace = races[raceIndex];
+      return randomRace.ToLower();
+    }
   }
 }
