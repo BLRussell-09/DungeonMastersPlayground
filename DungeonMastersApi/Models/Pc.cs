@@ -18,6 +18,7 @@ namespace DungeonMastersApi.Models
     public int level { get; set; }
     public bool is_active { get; set; }
     public List<Weapons> weapons { get; set; }
+    public List<Item> items { get; set; }
     public List<PcClass> playerClasses { get; set; }
     public string race_name { get; set; }
     public string firebase_id { get; set; }

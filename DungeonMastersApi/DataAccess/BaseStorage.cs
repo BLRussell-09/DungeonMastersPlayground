@@ -127,5 +127,16 @@ namespace DungeonMastersApi.DataAccess
             }
         }
 
+        public List<Item> GetItems(int pcId)
+        {
+            using (var connection = new SqlConnection(conString)) 
+            {
+                connection.Open();
+                List<Item> itemsList = new List<Item>();
+                var items = connection.Query<Item>(@"Select * from Items as i
+                                                        Where i.owner_id = @id", new { id = pcId });
+                return itemsList = items.ToList();
+            }
+        }
     }
 }

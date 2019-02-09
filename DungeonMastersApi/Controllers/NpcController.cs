@@ -25,7 +25,24 @@ namespace DungeonMastersApi.Controllers
         [HttpGet("{id}")]
         public IActionResult GetNpc(int id)
         {
-          return Ok(_pcStorage.GetPc(id));
+          if (id > 0)
+            {
+              var npc = _pcStorage.GetPc(id).ElementAt(0);
+              if (npc.type != "npc")
+              {
+                var message = "There is no npc with that id";
+                return BadRequest(message);
+              }
+              else
+              {
+                return Ok(_pcStorage.GetPc(id));
+              }
+            }
+            else
+            {
+                string message = "Please include an id that is greater than 0";
+                return BadRequest(message);
+            }
         }
 
         [HttpGet("random")]
