@@ -15,12 +15,14 @@ namespace DungeonMastersApi.DataAccess
         private readonly string conString;
         private BaseStorage _baseStorage;
         private WeaponStorage _weaponStorage;
+        private ItemStorage _itemStorage;
 
         public PcStorage(IConfiguration configuration) : base(configuration)
         {
             conString = configuration.GetSection("ConnectionString").Value;
             _baseStorage = new BaseStorage(configuration);
             _weaponStorage = new WeaponStorage(configuration);
+            _itemStorage = new ItemStorage(configuration);
         }
 
         public bool AddPc(Pc pc)
@@ -48,9 +50,14 @@ namespace DungeonMastersApi.DataAccess
 
                 _baseStorage.AddAbilityScores(ability_scores);
                 pc.weapons = new List<Weapons>();
+                pc.items = new List<Item>();
                 foreach (var weapon in pc.weapons)
                 {
                     _weaponStorage.AddWeapon(weapon);
+                }
+                foreach (var item in pc.items)
+                {
+                    _itemStorage.AddItem(item);
                 }
                 return result == 1;
             }
@@ -81,7 +88,14 @@ namespace DungeonMastersApi.DataAccess
                 });
               
                 _baseStorage.UpdateAbilityScores(pc.abilityScores);
-              
+                foreach (var item in pc.items)
+                {
+                    _itemStorage.UpdateItem(item);
+                }
+                foreach (var weapon in pc.weapons)
+                {
+                    _weaponStorage.UpdateWeapon(weapon);
+                }
               return pcUpdate == 1;
             }
         }
@@ -117,6 +131,7 @@ namespace DungeonMastersApi.DataAccess
                     pc.classes.Add( _baseStorage.GetClass(pcClass.class_name));
                 }
                 pc.weapons = _baseStorage.GetWeapons(pc.id);
+                pc.items = _baseStorage.GetItems(pc.id);
                 return result;
             }
         }

@@ -26,7 +26,16 @@ namespace DungeonMastersApi.Controllers
         {
             if (id > 0)
             {
+              var pc = _pcStorage.GetPc(id).ElementAt(0);
+              if (pc.type != "pc")
+              {
+                var message = "There is no pc with that id";
+                return BadRequest(message);
+              }
+              else
+              {
                 return Ok(_pcStorage.GetPc(id));
+              }
             }
             else
             {
