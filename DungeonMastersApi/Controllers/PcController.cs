@@ -58,12 +58,12 @@ namespace DungeonMastersApi.Controllers
             }
         }
 
-        [HttpPut]
-        public IActionResult UpdatePc(Pc pc)
+        [HttpPut("{id}")]
+        public IActionResult UpdatePc(Pc pc, int id)
         {
             if (pc != null)
             {
-                return Ok(_pcStorage.UpdatePc(pc));
+                return Ok(_pcStorage.UpdatePc(pc, id));
             }
             else
             {

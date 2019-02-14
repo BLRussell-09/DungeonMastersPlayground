@@ -47,8 +47,10 @@ namespace DungeonMastersApi.DataAccess
                      var addClass = connection.Execute(@"INSERT INTO [dbo].[Class_Name]([class_name],[owner_id],[class_level])
                                                            VALUES (@class_name,@owner_id,@class_level)", new { class_name = className, owner_id = character.id, class_level = playerClass.class_level});
                 }
-
+                 character.skills = new ProficiencySkills();
+                 character.skills.owner_id = character.id;
                 _baseStorage.AddAbilityScores(ability_scores);
+                _baseStorage.AddSkills(character.skills);
                 pc.weapons = new List<Weapons>();
                 pc.items = new List<Item>();
                 foreach (var weapon in pc.weapons)
@@ -63,7 +65,7 @@ namespace DungeonMastersApi.DataAccess
             }
         }
 
-        public bool UpdatePc(Pc pc)
+        public bool UpdatePc(Pc pc, int id)
         {
             using (var connection = new SqlConnection(conString))
             {
@@ -75,7 +77,7 @@ namespace DungeonMastersApi.DataAccess
                                                   ,[race_name] = @race_name
                                                   WHERE Pc.id = @id", new
                 {
-                    id = pc.id,
+                    id = id,
                     name = pc.name,
                     characteristics = pc.characteristics,
                     description = pc.description,
@@ -88,6 +90,7 @@ namespace DungeonMastersApi.DataAccess
                 });
               
                 _baseStorage.UpdateAbilityScores(pc.abilityScores);
+                _baseStorage.UpdateSkills(pc.skills);
                 foreach (var item in pc.items)
                 {
                     _itemStorage.UpdateItem(item);
@@ -132,6 +135,7 @@ namespace DungeonMastersApi.DataAccess
                 }
                 pc.weapons = _baseStorage.GetWeapons(pc.id);
                 pc.items = _baseStorage.GetItems(pc.id);
+                pc.skills = _baseStorage.GetSkills(pc.id);
                 return result;
             }
         }
@@ -141,8 +145,16 @@ namespace DungeonMastersApi.DataAccess
             using (var connection = new SqlConnection(conString)) 
             {
                 var pcs = connection.Query<Pc>(@"Select * from Pc as p Where p.firebase_id = @id and p.type = 'pc'", new { id = firebaseId});
+                List<Pc> userList = new List<Pc>();
                 var pcList = pcs.ToList();
-                return pcList;
+                foreach (var pc in pcList)
+                {
+                  if (pc.is_active == true)
+                  {
+                    userList.Add(pc);
+                  }
+                }
+                return userList;
             }
         }
 

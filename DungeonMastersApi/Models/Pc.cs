@@ -25,6 +25,7 @@ namespace DungeonMastersApi.Models
     public Race race { get; set; }
     public List<Class> classes { get; set; }
     public ABS abilityScores { get; set; }
+    public ProficiencySkills skills { get; set; }
     public string type { get; set; }
 
     private Random _random = new Random();

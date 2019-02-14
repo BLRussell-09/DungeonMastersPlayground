@@ -67,11 +67,11 @@ namespace DungeonMastersApi.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdateNpc(Pc npc)
+        public IActionResult UpdateNpc(Pc npc, int id)
         {
             if (npc != null )
             {
-                return Ok(_pcStorage.UpdatePc(npc));
+                return Ok(_pcStorage.UpdatePc(npc, id));
             }
             else
             {

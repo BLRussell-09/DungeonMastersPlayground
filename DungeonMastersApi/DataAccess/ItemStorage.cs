@@ -10,8 +10,11 @@ using System.Threading.Tasks;
 namespace DungeonMastersApi.DataAccess
 {
   public class ItemStorage
+
+      
   {
       private readonly string connectionString;
+      private Random _random = new Random();
       public ItemStorage(IConfiguration configuration)
       {
           connectionString = configuration.GetSection("ConnectionString").Value;
@@ -30,17 +33,41 @@ namespace DungeonMastersApi.DataAccess
           }
       }
 
-      public Weapons GetItem (int id)
+      public Item GetItem (int id)
         {
             using (var connection = new SqlConnection(connectionString)) 
             {
                 connection.Open();
                 
-                var item = connection.Query<Weapons>(@"Select * from Items as i
+                var item = connection.Query<Item>(@"Select * from Items as i
                                                        Where i.id = @id", new { id = id });
                 return item.ElementAt(0);
             }
       }
+
+    public List<Item> GetRandomItems()
+    {
+      using (var connection = new SqlConnection(connectionString))
+      {
+        connection.Open();
+
+        var items = connection.Query<Item>(@"Select Top(5) * from Items as i
+                                             Order By NEWID()");
+       
+        if (items.Count() > 0)
+        {
+          var itemsList = items.ToList();
+          return itemsList;
+        }
+        else
+        {
+          var itemsL = new List<Item>();
+          return itemsL;
+        }
+        
+      }
+    }
+      
 
         public bool UpdateItem(Item item)
         {
