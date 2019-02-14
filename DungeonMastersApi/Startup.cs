@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DungeonMastersApi
 {
@@ -26,6 +28,21 @@ namespace DungeonMastersApi
     public void ConfigureServices(IServiceCollection services)
     {
       services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+      services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                  options.IncludeErrorDetails = true;
+                  options.Authority = "https://securetoken.google.com/dungeonmastersplayground";
+                  options.TokenValidationParameters = new TokenValidationParameters
+                  {
+                    ValidateIssuer = true,
+                    ValidIssuer = "https://securetoken.google.com/dungeonmastersplayground",
+                    ValidateAudience = true,
+                    ValidAudience = "dungeonmastersplayground",
+                    ValidateLifetime = true
+                  };
+                }
+            );
       services.AddSingleton<IConfiguration>(Configuration);
     }
 
@@ -42,7 +59,13 @@ namespace DungeonMastersApi
       }
 
       app.UseHttpsRedirection();
+      app.UseAuthentication();
+      app.UseCors(builder => 
+      {
+         builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().AllowCredentials();
+      });
       app.UseMvc();
+      app.UseStaticFiles();
     }
   }
 }

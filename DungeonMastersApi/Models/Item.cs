@@ -13,4 +13,5 @@ namespace DungeonMastersApi.Models
     public int quantity { get; set; }
     public int owner_id { get; set; }
   }
+
 }

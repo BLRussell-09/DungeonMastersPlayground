@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "5eScraper", "5eScraper\5eSc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonMastersApi", "DungeonMastersApi\DungeonMastersApi.csproj", "{4640ACEA-0C6E-4F56-9052-D09215D8478C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMP", "DMP\DMP.csproj", "{048BE772-EA0A-4C57-ACFC-0B1FA3B6A2EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{4640ACEA-0C6E-4F56-9052-D09215D8478C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4640ACEA-0C6E-4F56-9052-D09215D8478C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4640ACEA-0C6E-4F56-9052-D09215D8478C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{048BE772-EA0A-4C57-ACFC-0B1FA3B6A2EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{048BE772-EA0A-4C57-ACFC-0B1FA3B6A2EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{048BE772-EA0A-4C57-ACFC-0B1FA3B6A2EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{048BE772-EA0A-4C57-ACFC-0B1FA3B6A2EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

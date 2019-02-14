@@ -28,5 +28,11 @@ namespace DungeonMastersApi.Controllers
             race.ToLower();
             return Ok( _baseStorage.GetRace(race));
         }
+
+        [HttpGet]
+        public IActionResult GetRaces()
+        {
+            return Ok(_baseStorage.GetRaces());
+        }
     }
 }

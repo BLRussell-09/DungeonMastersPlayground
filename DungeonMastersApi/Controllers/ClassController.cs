@@ -25,5 +25,11 @@ namespace DungeonMastersApi.Controllers
       {
         return Ok(_classStorage.GetClass(index));
       }
+
+      [HttpGet]
+      public IActionResult GetClasses()
+      {
+        return Ok(_classStorage.GetClasses());
+      }
     }
 }

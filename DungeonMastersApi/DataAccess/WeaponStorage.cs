@@ -23,10 +23,17 @@ namespace DungeonMastersApi.DataAccess
             using (var connection = new SqlConnection(connectionString)) 
             {
                 connection.Open();
+                if (weapon.owner_id > 0)
+                {
+                    var result = connection.Execute(@"INSERT INTO [dbo].[Weapons]([name],[damage_dice],[owner_id],[description],[dice_count])
+                                                VALUES (@name,@damage_dice,@owner_id,@description,@dice_count)", weapon);
+                    return result == 1;
+                }
+                else
+                {
+                    return false;
+                }
                 
-                var result = connection.Execute(@"INSERT INTO [dbo].[Weapons]([name],[damage_dice],[owner_id],[description])
-                                                VALUES (@name,@damage_dice,@owner_id,@description)", weapon);
-                return result == 1;
             }
         }
 
@@ -42,18 +49,39 @@ namespace DungeonMastersApi.DataAccess
             }
         }
 
-        public bool UpdateWeapon(Weapons weapon)
+    public List<Weapons> GetRandomWeapons()
+    {
+      using (var connection = new SqlConnection(connectionString))
+      {
+        connection.Open();
+
+        var weapon = connection.Query<Weapons>(@"Select Top(5) * from Weapons as w
+                                                 ORDER BY RAND()");
+        if (weapon.Count() > 0)
+        {
+           return weapon.ToList();
+        }
+        else
+        {
+          var weaponList = new List<Weapons>();
+          return weaponList;
+        }
+      }
+    }
+
+    public bool UpdateWeapon(Weapons weapon)
         {
             using (var connection = new SqlConnection(connectionString)) 
             {
                 connection.Open();
                 var result = connection.Execute(@"UPDATE [dbo].[Weapons]
-                                                  SET [name] = @name,[damage_dice] = @damage_dice,[description] = @description
+                                                  SET [name] = @name,[damage_dice] = @damage_dice,[description] = @description, [dice_count] = @dice_count
                                                   WHERE Weapons.id = @id", new
                 {
                   id = weapon.id,
                   name = weapon.name,
                   damage_dice = weapon.damage_dice,
+                  dice_count = weapon.dice_count,
                   description = weapon.description
                 });
                 return result == 1;

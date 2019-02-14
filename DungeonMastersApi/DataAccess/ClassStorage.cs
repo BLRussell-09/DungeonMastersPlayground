@@ -18,6 +18,16 @@ namespace DungeonMastersApi.DataAccess
       conString = configuration.GetSection("ConnectionString").Value;
     }
 
+    public List<Class> GetClasses()
+    {
+      using (var connection = new SqlConnection(conString))
+      {
+        connection.Open();
+        var result = connection.Query<Class>(@"Select * from Class as c");
+        return result.ToList();
+      }
+    }
+
     public IEnumerable<Class> GetClass(int index)
     {
       using (var connection = new SqlConnection(conString))
